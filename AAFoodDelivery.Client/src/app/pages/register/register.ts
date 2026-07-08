@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -33,7 +34,11 @@ export class Register {
       !this.user.password ||
       !this.user.confirmPassword
     ) {
-      alert('Please fill all fields.');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Missing Details',
+        text: 'Please fill all fields.'
+      });
       return;
     }
 
@@ -42,7 +47,13 @@ export class Register {
       return;
     }
 
-    alert('Registration Successful');
+    Swal.fire({
+      icon: 'success',
+      title: 'Registration Successful',
+      text: 'Your account has been created.',
+      timer: 1500,
+      showConfirmButton: false
+    });
 
     this.router.navigate(['/login']);
 
