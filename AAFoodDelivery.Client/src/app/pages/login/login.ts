@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
-import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +12,7 @@ import { HttpClientModule } from '@angular/common/http';
     CommonModule,
     FormsModule,
     RouterLink,
-    HttpClientModule
+    
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'
@@ -33,40 +32,40 @@ export class Login {
       Swal.fire({
         icon: 'warning',
         title: 'Missing Details',
-        text: 'Please enter Username and Password'
+        text: 'Please enter Email and Password'
       });
       return;
     }
 
     this.authService.login({
-
-      username: this.email,
+      email: this.email,
       password: this.password
-
     }).subscribe({
 
       next: (res: any) => {
 
-        this.authService.saveToken(res.token);
-
         Swal.fire({
           icon: 'success',
           title: 'Login Successful',
-          text: 'Welcome Admin!',
+          text: `Welcome ${res.name}!`,
           timer: 1500,
           showConfirmButton: false
         });
 
-        this.router.navigate(['/']);
+        if (res.role === 'Admin') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/']);
+        }
 
       },
 
-      error: () => {
+      error: (err) => {
 
         Swal.fire({
           icon: 'error',
           title: 'Login Failed',
-          text: 'Invalid Username or Password'
+          text: err.error?.message || 'Invalid Email or Password'
         });
 
       }

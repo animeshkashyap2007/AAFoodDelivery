@@ -3,6 +3,7 @@ import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../services/auth';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,7 @@ import { Router, RouterLink } from '@angular/router';
 export class Register {
 
   private router = inject(Router);
-
+  private authService = inject(AuthService);
   user = {
     name: '',
     email: '',
@@ -43,19 +44,46 @@ export class Register {
     }
 
     if (this.user.password !== this.user.confirmPassword) {
-      alert('Passwords do not match.');
+      Swal.fire({
+        icon: 'error',
+        title: 'Password Mismatch',
+        text: 'Passwords do not match.'
+      });
       return;
     }
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Registration Successful',
-      text: 'Your account has been created.',
-      timer: 1500,
-      showConfirmButton: false
-    });
+    this.authService.register({
+      name: this.user.name,
+      email: this.user.email,
+      phone: this.user.phone,
+      password: this.user.password
+    }).subscribe({
 
-    this.router.navigate(['/login']);
+      next: () => {
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Registration Successful',
+          text: 'Your account has been created.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+
+        this.router.navigate(['/login']);
+
+      },
+
+      error: (err) => {
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Registration Failed',
+          text: err.error?.message || 'Unable to register.'
+        });
+
+      }
+
+    });
 
   }
 

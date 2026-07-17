@@ -11,5 +11,7 @@ namespace AAFoodDelivery.API.Data
         }
 
         public DbSet<FoodItem> FoodItems { get; set; }
+
+        public DbSet<User> Users { get; set; }
     }
 }

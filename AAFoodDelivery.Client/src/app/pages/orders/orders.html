@@ -147,7 +147,7 @@
 
         <div class="text-center mt-5">
 
-          
+
 
           <a routerLink="/"
              class="btn btn-success me-3">
@@ -160,6 +160,52 @@
             Download Invoice
 
           </button>
+
+          <hr class="my-5">
+
+          <h3 class="text-center text-success">
+            🚴 Live Delivery Tracking
+          </h3>
+
+          <div class="row mt-4">
+
+            <div class="col-md-4">
+
+              <div class="card p-3 shadow">
+
+                <h5>Delivery Partner</h5>
+
+                <h4>{{ deliveryBoy }}</h4>
+
+                <p><strong>Vehicle:</strong><br>{{ vehicle }}</p>
+
+                <p><strong>Vehicle No:</strong><br>{{ vehicleNumber }}</p>
+
+                <p><strong>ETA:</strong> {{minutes}}:{{seconds}}</p>
+
+                <div class="progress mt-3">
+
+                  <div class="progress-bar progress-bar-striped progress-bar-animated"
+                       [style.width.%]="progress">
+                  </div>
+
+                </div>
+
+                <p class="mt-3">
+                  {{status}}
+                </p>
+
+              </div>
+
+            </div>
+
+            <div class="col-md-8">
+
+              <div id="map"></div>
+
+            </div>
+
+          </div>
 
         </div>
 

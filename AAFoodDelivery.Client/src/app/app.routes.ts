@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-
+import { Tracking } from './pages/tracking/tracking';
 import { Home } from './pages/home/home';
 import { Menu } from './pages/menu/menu';
 import { FoodDetails } from './pages/food-details/food-details';
@@ -11,6 +11,7 @@ import { Register } from './pages/register/register';
 import { Contact } from './pages/contact/contact';
 
 export const routes: Routes = [
+
   { path: '', component: Home },
 
   { path: 'menu', component: Menu },
@@ -28,6 +29,8 @@ export const routes: Routes = [
   { path: 'register', component: Register },
 
   { path: 'contact', component: Contact },
+
+  { path: 'tracking', component: Tracking },
 
   { path: '**', redirectTo: '' }
 ];
