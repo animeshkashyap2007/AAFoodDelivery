@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FoodService } from '../../services/food.service';
-import { Component, inject, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component,inject,AfterViewInit,ChangeDetectorRef} from '@angular/core';
 import * as L from 'leaflet';
 
 @Component({
@@ -21,8 +21,7 @@ export class Orders implements AfterViewInit {
   orderItems = this.foodService.getCart();
 
   orderId = 'ORD' + Math.floor(Math.random() * 9000 + 1000);
-
-  orderDate = new Date();
+  orderDate: Date = new Date();
 
   deliveryCharge = 40;
 
@@ -34,7 +33,6 @@ export class Orders implements AfterViewInit {
   seconds = 0;
 
   progress = 0;
-
   status = 'Preparing Food';
 
   map!: L.Map;
@@ -67,9 +65,10 @@ export class Orders implements AfterViewInit {
     }
   ];
 
+
+
   ngAfterViewInit(): void {
 
-    // Random delivery partner
     const partner =
       this.deliveryPartners[
       Math.floor(Math.random() * this.deliveryPartners.length)
@@ -78,35 +77,34 @@ export class Orders implements AfterViewInit {
     this.deliveryBoy = partner.name;
     this.vehicle = partner.vehicle;
     this.vehicleNumber = partner.number;
+
     this.cdr.detectChanges();
 
-    console.log(this.deliveryBoy);
-    console.log(this.vehicle);
-    console.log(this.vehicleNumber);
-
-    // Wait for Angular to render the map div
     setTimeout(() => {
 
       this.map = L.map('map').setView([28.6139, 77.2090], 12);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(this.map);
+      L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          attribution: '&copy; OpenStreetMap contributors'
+        }
+      ).addTo(this.map);
 
       const marker = L.icon({
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl:
+          'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34]
       });
 
-      // Restaurant
       L.marker([28.6139, 77.2090], { icon: marker })
         .addTo(this.map)
         .bindPopup('🍴 A&A Food Delivery');
 
-      // Customer
       L.marker([28.6280, 77.2180], { icon: marker })
         .addTo(this.map)
         .bindPopup('🏠 Customer');
@@ -120,7 +118,7 @@ export class Orders implements AfterViewInit {
     const doc = new jsPDF();
 
     doc.setFontSize(20);
-    doc.text("A&A FOOD DELIVERY", 14, 20);
+    doc.text('A&A FOOD DELIVERY', 14, 20);
 
     doc.setFontSize(12);
     doc.text(`Order ID: ${this.orderId}`, 14, 30);
@@ -130,7 +128,7 @@ export class Orders implements AfterViewInit {
       startY: 48,
       head: [['Food Item', 'Qty', 'Price', 'Total']],
       body: this.orderItems.map(item => [
-        item.name,
+        item.food?.name ?? item.name,
         item.quantity,
         `₹${item.price}`,
         `₹${item.price * item.quantity}`
@@ -150,7 +148,10 @@ export class Orders implements AfterViewInit {
   }
 
   getSubTotal(): number {
-    return this.foodService.getTotal();
+    return this.orderItems.reduce(
+      (sum, item) => sum + (item.price * item.quantity),
+      0
+    );
   }
 
   getGrandTotal(): number {

@@ -59,15 +59,43 @@ export class Checkout {
       return;
     }
 
-    Swal.fire({
-      icon: 'success',
-      title: 'Order Placed Successfully!',
-      text: 'Thank you for ordering from A&A Food Delivery.',
-      confirmButtonColor: '#f59e0b',
-      confirmButtonText: 'View Order'
-    }).then(() => {
+    // TODO: Replace with the actual logged-in user's ID from your auth system
+    const userId = 1;
 
-      this.router.navigate(['/orders']);
+    const fullAddress =
+      `${this.customer.address}, ${this.customer.city} - ${this.customer.pincode}`;
+
+    this.foodService.placeOrder(userId, fullAddress).subscribe({
+
+      next: () => {
+
+        //this.foodService.cart = [];
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Order Placed Successfully!',
+          text: 'Thank you for ordering from A&A Food Delivery.',
+          confirmButtonColor: '#f59e0b',
+          confirmButtonText: 'View Orders'
+        }).then(() => {
+
+          this.router.navigate(['/orders']);
+
+        });
+
+      },
+
+      error: (err) => {
+
+        console.error(err);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Order Failed',
+          text: 'Unable to place your order. Please try again.'
+        });
+
+      }
 
     });
 
