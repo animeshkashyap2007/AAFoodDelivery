@@ -100,6 +100,7 @@ Project screenshots can be found in the `Project-Resources/Screenshots` folder.
 ## Developer
 
 **Animesh Kashyap**
+**Anand Singh**
 
 Bachelor of Computer Applications (BCA)
 
