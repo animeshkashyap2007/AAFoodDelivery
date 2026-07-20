@@ -97,6 +97,11 @@ Project screenshots can be found in the `Project-Resources/Screenshots` folder.
 - Real-time Delivery Tracking
 - Email Notifications
 
+## Internship
+
+Successfully completed a Summer Internship at **TuxAcademy**, a training and education division of **Linux Mantra IT Services**,
+where this project was developed using Angular, ASP.NET Core Web API, Entity Framework Core, and SQL Server.
+
 ## Developer
 
 **Animesh Kashyap**
@@ -109,3 +114,4 @@ Institute of Information Technology & Management (IITM), Janakpuri
 ## License
 
 This project was developed for educational purposes as part of the Bachelor of Computer Applications curriculum.
+Summer Intern at **TuxAcademy**, a training and education division of **Linux Mantra IT Services**.
