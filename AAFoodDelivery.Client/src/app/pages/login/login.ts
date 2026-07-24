@@ -1,9 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import Swal from 'sweetalert2';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
+
+declare const google: any;
+
 
 @Component({
   selector: 'app-login',
@@ -11,13 +14,12 @@ import { AuthService } from '../../services/auth';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
-    
+    RouterLink
   ],
   templateUrl: './login.html',
   styleUrl: './login.css'
 })
-export class Login {
+export class Login implements AfterViewInit {
 
   private router = inject(Router);
   private authService = inject(AuthService);
@@ -26,52 +28,69 @@ export class Login {
   password = '';
   showPassword = false;
 
-  login() {
+  ngAfterViewInit(): void {
 
-    if (!this.email || !this.password) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Missing Details',
-        text: 'Please enter Email and Password'
-      });
-      return;
-    }
+    google.accounts.id.initialize({
+      client_id: '481638960684-lsljfoukqtbk5ojggn0v9a8femo47f3h.apps.googleusercontent.com',
 
-    this.authService.login({
-      email: this.email,
-      password: this.password
-    }).subscribe({
+      callback: (response: any) => {
 
-      next: (res: any) => {
+        this.authService.googleLogin(response.credential).subscribe({
 
-        Swal.fire({
-          icon: 'success',
-          title: 'Login Successful',
-          text: `Welcome ${res.name}!`,
-          timer: 1500,
-          showConfirmButton: false
-        });
+          next: (res: any) => {
 
-        if (res.role === 'Admin') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/']);
-        }
+            localStorage.setItem('token', res.token);
+            localStorage.setItem('role', res.role);
 
-      },
+            Swal.fire({
+              icon: 'success',
+              title: 'Google Login Successful',
+              text: `Welcome ${res.name}!`,
+              timer: 1500,
+              showConfirmButton: false
+            });
 
-      error: (err) => {
+            if (res.role === 'Admin') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/']);
+            }
 
-        Swal.fire({
-          icon: 'error',
-          title: 'Login Failed',
-          text: err.error?.message || 'Invalid Email or Password'
+          },
+
+          error: (err) => {
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Google Login Failed',
+              text: err.error?.message || 'Unable to login with Google'
+            });
+
+          }
+
         });
 
       }
 
     });
+    google.accounts.id.renderButton(
+      document.getElementById('googleButton'),
+      {
+        theme: 'outline',
+        size: 'large',
+        width: 300
+      }
+    );
 
+  }
+
+  login() {
+
+    if (!this.email || !this.password) {
+      
+    }
+
+    
   }
 
 }

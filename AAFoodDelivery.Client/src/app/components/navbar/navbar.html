@@ -59,16 +59,24 @@
 
 </div>
 
-<div class="auth" *ngIf="isLoggedIn()">
+  <div class="auth" *ngIf="isLoggedIn()">
 
-  <button
-    class="btn btn-danger"
-    (click)="logout()">
+    <div class="d-flex align-items-center gap-3">
 
-    Logout
+      <div class="user-pill">
+        <i class="bi bi-person-circle"></i>
+        <span>{{ name }}</span>
+      </div>
 
-  </button>
+      <button class="logout-btn"
+              (click)="logout()">
 
-</div>
+        Logout
+
+      </button>
+
+    </div>
+
+  </div>
 
 </nav>

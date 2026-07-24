@@ -15,9 +15,12 @@ namespace AAFoodDelivery.API.Models
 
         public string Phone { get; set; } = "";
 
-        [Required]
         public string Password { get; set; } = "";
 
         public string Role { get; set; } = "User";
+
+        public string? GoogleId { get; set; }
+
+        public string AuthProvider { get; set; } = "Local";
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Google.Apis.Auth;
+using System.Security.Cryptography;
 
 namespace AAFoodDelivery.API.Controllers
 {
@@ -20,6 +22,39 @@ namespace AAFoodDelivery.API.Controllers
         {
             _configuration = configuration;
             _context = context;
+        }
+
+        private object GenerateJwt(User user)
+        {
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+
+            var creds = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(
+                    Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
+                signingCredentials: creds);
+
+            return new
+            {
+                token = new JwtSecurityTokenHandler().WriteToken(token),
+                name = user.Name,
+                email = user.Email,
+                role = user.Role
+            };
         }
 
         // Register User
@@ -90,13 +125,55 @@ namespace AAFoodDelivery.API.Controllers
                     Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
                 signingCredentials: creds);
 
-            return Ok(new
-            {
-                token = new JwtSecurityTokenHandler().WriteToken(token),
-                name = user.Name,
-                email = user.Email,
-                role = user.Role
-            });
+            return Ok(GenerateJwt(user));
+
         }
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin(GoogleLoginRequest request)
+        {
+            GoogleJsonWebSignature.Payload payload;
+
+            try
+            {
+                payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken);
+            }
+            catch
+            {
+                return Unauthorized(new
+                {
+                    message = "Invalid Google token."
+                });
+            }
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == payload.Email);
+
+            if (user == null)
+            {
+                user = new User
+                {
+                    Name = payload.Name,
+                    Email = payload.Email,
+                    Password = Guid.NewGuid().ToString(), // Random password
+                    Phone = "",
+                    Role = "User",
+                    GoogleId = payload.Subject,
+                    AuthProvider = "Google"
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                user.GoogleId = payload.Subject;
+                user.AuthProvider = "Google";
+
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(GenerateJwt(user));
+        }
+
     }
 }

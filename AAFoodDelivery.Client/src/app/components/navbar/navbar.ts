@@ -25,6 +25,11 @@ export class Navbar {
   isLoggedIn(): boolean {
     return this.authService.getToken() !== null;
   }
+  name = '';
+
+  ngOnInit() {
+    this.name = localStorage.getItem('name') || '';
+  }
 
   logout() {
 
