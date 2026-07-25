@@ -1,6 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using AAFoodDelivery.API.Data;
+using AAFoodDelivery.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddHttpClient<GroqService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(

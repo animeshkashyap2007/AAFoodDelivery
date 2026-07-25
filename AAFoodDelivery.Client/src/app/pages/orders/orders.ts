@@ -82,7 +82,14 @@ export class Orders implements AfterViewInit {
 
     setTimeout(() => {
 
-      this.map = L.map('map').setView([28.6139, 77.2090], 12);
+      const mapElement = document.getElementById('map');
+
+      if (!mapElement) {
+        console.error('Map element not found');
+        return;
+      }
+
+      this.map = L.map(mapElement).setView([28.6139, 77.2090], 12);
 
       L.tileLayer(
         'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -109,7 +116,7 @@ export class Orders implements AfterViewInit {
         .addTo(this.map)
         .bindPopup('🏠 Customer');
 
-    }, 100);
+    }, 300);
 
   }
 

@@ -4,4 +4,25 @@
 
   <div id="map"></div>
 
+  <div class="mt-4">
+
+    <h5>{{status}}</h5>
+
+    <p>
+      ETA:
+      {{minutes}}:{{
+        seconds < 10 ? '0' + seconds : seconds
+      }}
+    </p>
+
+    <div class="progress">
+
+      <div class="progress-bar progress-bar-striped progress-bar-animated"
+           [style.width.%]="progress">
+      </div>
+
+    </div>
+
+  </div>
+
 </div>

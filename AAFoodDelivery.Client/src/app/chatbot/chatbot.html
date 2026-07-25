@@ -1,0 +1,71 @@
+<!-- Floating Button -->
+<button class="chat-toggle" (click)="toggleChat()">
+  💬
+</button>
+
+<!-- Chat Window -->
+<div class="chat-window" *ngIf="isOpen">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div>
+      <h3>🤖 AA Food AI</h3>
+      <small>Always online</small>
+    </div>
+
+    <button class="close-btn" (click)="toggleChat()">
+      ✖
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-body">
+
+    <div *ngFor="let msg of messages"
+         class="message"
+         [ngClass]="msg.sender">
+
+      {{ msg.text }}
+
+    </div>
+
+    <div class="message bot typing"
+         *ngIf="loading">
+
+      AI is typing...
+
+    </div>
+
+  </div>
+
+  <!-- Suggestions -->
+  <div class="suggestions">
+
+    <button (click)="message='Recommend a burger';sendMessage()">
+      🍔 Burger
+    </button>
+
+    <button (click)="message='Show pizzas';sendMessage()">
+      🍕 Pizza
+    </button>
+
+    <button (click)="message='Healthy food';sendMessage()">
+      🥗 Healthy
+    </button>
+
+  </div>
+
+  <!-- Input -->
+  <div class="chat-footer">
+
+    <input [(ngModel)]="message"
+           (keyup.enter)="sendMessage()"
+           placeholder="Ask anything..." />
+
+    <button (click)="sendMessage()">
+      ➤
+    </button>
+
+  </div>
+
+</div>
