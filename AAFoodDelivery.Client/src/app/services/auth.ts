@@ -21,6 +21,7 @@ export class AuthService {
         localStorage.setItem('token', response.token);
         localStorage.setItem('role', response.role);
         localStorage.setItem('name', response.name);
+        localStorage.setItem('userId', response.id.toString());
       })
     );
   }
@@ -33,6 +34,7 @@ export class AuthService {
         localStorage.setItem('token', response.token);
         localStorage.setItem('role', response.role);
         localStorage.setItem('name', response.name);
+        localStorage.setItem('userId', response.id.toString());
       })
     );
   }
@@ -57,5 +59,6 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('name');
+    localStorage.removeItem('userId');
   }
 }

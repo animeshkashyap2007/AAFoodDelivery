@@ -1,13 +1,12 @@
 ﻿using AAFoodDelivery.API.Data;
 using AAFoodDelivery.API.Models;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Google.Apis.Auth;
-using System.Security.Cryptography;
 
 namespace AAFoodDelivery.API.Controllers
 {
@@ -24,10 +23,13 @@ namespace AAFoodDelivery.API.Controllers
             _context = context;
         }
 
+        #region JWT
+
         private object GenerateJwt(User user)
         {
             var claims = new[]
             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Name),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role)
@@ -51,17 +53,23 @@ namespace AAFoodDelivery.API.Controllers
             return new
             {
                 token = new JwtSecurityTokenHandler().WriteToken(token),
+                id = user.Id,
                 name = user.Name,
                 email = user.Email,
                 role = user.Role
             };
         }
 
-        // Register User
+        #endregion
+
+        //==========================================================
+        // REGISTER
+        //==========================================================
+
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
-            if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+            if (await _context.Users.AnyAsync(x => x.Email == request.Email))
             {
                 return BadRequest(new
                 {
@@ -74,7 +82,7 @@ namespace AAFoodDelivery.API.Controllers
                 Name = request.Name,
                 Email = request.Email,
                 Phone = request.Phone,
-                Password = request.Password, // Later we'll hash this
+                Password = request.Password,
                 Role = "User"
             };
 
@@ -87,47 +95,49 @@ namespace AAFoodDelivery.API.Controllers
             });
         }
 
-        // Login User/Admin
+        //==========================================================
+        // LOGIN
+        //==========================================================
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest login)
         {
+            Console.WriteLine("========== LOGIN ==========");
+            Console.WriteLine($"Email Received    : {login.Email}");
+            Console.WriteLine($"Password Received : {login.Password}");
+
+            Console.WriteLine("========== USERS ==========");
+
+            var allUsers = await _context.Users.ToListAsync();
+
+            foreach (var u in allUsers)
+            {
+                Console.WriteLine($"{u.Id} | {u.Email} | {u.Password}");
+            }
+
             var user = await _context.Users.FirstOrDefaultAsync(u =>
                 u.Email == login.Email &&
                 u.Password == login.Password);
 
             if (user == null)
             {
+                Console.WriteLine("LOGIN FAILED");
+
                 return Unauthorized(new
                 {
                     message = "Invalid Email or Password"
                 });
             }
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
-
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-
-            var creds = new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(
-                    Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
-                signingCredentials: creds);
+            Console.WriteLine("LOGIN SUCCESS");
 
             return Ok(GenerateJwt(user));
-
         }
+
+        //==========================================================
+        // GOOGLE LOGIN
+        //==========================================================
+
         [HttpPost("google-login")]
         public async Task<IActionResult> GoogleLogin(GoogleLoginRequest request)
         {
@@ -141,12 +151,12 @@ namespace AAFoodDelivery.API.Controllers
             {
                 return Unauthorized(new
                 {
-                    message = "Invalid Google token."
+                    message = "Invalid Google Token."
                 });
             }
 
             var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == payload.Email);
+                .FirstOrDefaultAsync(x => x.Email == payload.Email);
 
             if (user == null)
             {
@@ -154,7 +164,7 @@ namespace AAFoodDelivery.API.Controllers
                 {
                     Name = payload.Name,
                     Email = payload.Email,
-                    Password = Guid.NewGuid().ToString(), // Random password
+                    Password = Guid.NewGuid().ToString(),
                     Phone = "",
                     Role = "User",
                     GoogleId = payload.Subject,
@@ -174,6 +184,5 @@ namespace AAFoodDelivery.API.Controllers
 
             return Ok(GenerateJwt(user));
         }
-
     }
 }

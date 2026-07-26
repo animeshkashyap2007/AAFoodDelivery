@@ -22,7 +22,7 @@ namespace AAFoodDelivery.API.Controllers
         {
             var order = new Order
             {
-                UserId = request.UserId,
+                UserId = 2,
                 Address = request.Address,
                 TotalAmount = request.TotalAmount,
                 Status = "Pending",
